@@ -1,0 +1,13 @@
+name = "StaticTrafficAssignment"
+uuid = "0f79d0df-e67b-4784-87aa-5ad2df077a47"
+authors = ["Sai Kiran Mayakuntla"]
+version = "0.1.0"
+
+[compat]
+julia = "1.4"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
