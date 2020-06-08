@@ -6,6 +6,6 @@ using MetaGraphs: MetaDiGraph, set_prop!, set_props!
 
 export readtntpdata
 
-include("loaders/TNTP_loader.jl")
+include("data_loaders/TNTP_loader.jl")
 
 end
