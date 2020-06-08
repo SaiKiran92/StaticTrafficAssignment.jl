@@ -101,12 +101,11 @@ function readtntpdata(folderpath::String)
     nzones, nnodes, ftnode, nlinks, linkdf = readnettntp(filepaths[:net])
     nzones2, totalflow, trips = readtriptntp(filepaths[:trips])
 
-    flowallowedthrough(nodeno) = (nodeno < ftnode)
-
     @assert nzones == nzones2 "Number of zones inconsistent"
     @assert totalflow ≈ sum(trips) "Number of trips inconsistent"
     @assert nlinks == nrow(linkdf) "Number of links inconsistent"
     @assert all((1 .<= linkdf.init_node .<= nnodes) .& (1 .<= linkdf.term_node .<= nnodes)) "Number of nodes inconsistent"
+    @assert ftnode <= nnodes "First through node inconsistent"
 
     # building the network
     network = MetaDiGraph(nnodes)
@@ -129,5 +128,5 @@ function readtntpdata(folderpath::String)
         @assert nlinks == nrow(bestsolution) "Number of links inconsistent with flow file"
     end
 
-    return (network = network, trips = trips, flowallowedthrough = flowallowedthrough, bestsolution = bestsolution)
+    return (network = network, trips = trips, firstthroughnode = ftnode, bestsolution = bestsolution)
 end
