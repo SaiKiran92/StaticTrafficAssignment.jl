@@ -6,7 +6,7 @@
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://SaiKiran92.github.io/StaticTrafficAssignment.jl/dev)
 
 
-This package contains functions to load road network data in TNTP format. Check out [this GitHub repository] (https://github.com/bstabler/TransportationNetworks) to learn more about the format and download some standard networks.
+This package contains functions to load road network data in TNTP format. Check out [this GitHub repository](https://github.com/bstabler/TransportationNetworks) to learn more about the format and download some standard networks.
 
 ## Planning to implement
 ### Algorithms
