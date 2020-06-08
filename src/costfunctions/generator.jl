@@ -1,7 +1,7 @@
 struct CostFunctionGenerator <: Function
     times::Function
-    dtimes::Union{Nothing,Function}
-    ddtimes::Union{Nothing,Function}
+    dtimes::Function
+    ddtimes::Function
 
     function CostFunctionGenerator(network, timefn)
         fns = []
