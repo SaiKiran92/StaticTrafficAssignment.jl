@@ -16,7 +16,7 @@ Custom delay functions are supported. Both UE and SO assignments can be easily c
 
 Sorry about the lack of documentation. But I think the package is pretty readable for anyone with some experience with Julia. Will try to add a couple more examples soon.
 
-## Planning to implement
+## Coming soon
 ### Algorithms
 
 - Conjugate Frank-Wolfe
