@@ -10,11 +10,11 @@ This package contains functions to load road network data in TNTP format. Check 
 
 I have implemented two assignment algorithms: All-Or-Nothing and Frank-Wolfe. More will be coming soon.
 
-No support yet for nodes that do not allow through flows, i.e. for networks with <FIRST THRU NODE> > 1 (in \*_net.tntp).
+No support yet for nodes that do not allow through flows, i.e. for networks with \<FIRST THRU NODE\> > 1 (in \*_net.tntp).
 
 Custom delay functions are supported. Both UE and SO assignments can be easily calculated.
 
-Sorry about the lack of documentation. But I think the package is very readable for anyone with some experience with Julia. Will try to add a couple more examples soon.
+Sorry about the lack of documentation. But I think the package is pretty readable for anyone with some experience with Julia. Will try to add a couple more examples soon.
 
 ## Planning to implement
 ### Algorithms
