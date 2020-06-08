@@ -9,6 +9,7 @@
 This package contains functions to load road network data in TNTP format. Check out [this GitHub repository] (https://github.com/bstabler/TransportationNetworks) to learn more about the format and download some standard networks.
 
 ## Planning to implement
+### Algorithms
 
 - Frank-Wolfe
 - Conjugate Frank-Wolfe
