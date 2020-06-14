@@ -1,4 +1,4 @@
-function frankwolfe(network::MetaDiGraph, trips::Array{<:Real,2}, costfn::Function; reltol=1e-04)
+function frankwolfe(network::MetaDiGraph, trips::AbstractMatrix{<:Real}, costfn::Function; reltol=1e-04)
     # initialize
     flows = allornothing(network, trips, costfn)
 

@@ -17,3 +17,12 @@ function bisection(fn; a=0., b=1., ϵ=1e-05)
 
     return μ
 end
+
+function matrixify(network::MetaDiGraph, vec::AbstractVector)
+    mx = sparse([], [], Float64[], nnodes, nnodes)
+    #costmx = zeros(nnodes, nnodes)
+    for (v,e) in zip(vec,edges(network))
+        mx[src(e),dst(e)] = v
+    end
+    mx
+end

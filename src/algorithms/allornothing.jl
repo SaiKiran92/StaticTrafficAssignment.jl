@@ -1,19 +1,16 @@
-function allornothing(network::MetaDiGraph, trips::Array{<:Real,2}, costs::Array)
+function allornothing(network::MetaDiGraph, trips::AbstractMatrix{<:Real}, costs::Array)
     # Initialization
     nnodes = nv(network)
     nzones = get_prop(network, :nzones)
     flows = zeros(ne(network))
 
     # Making cost matrix
-    costmx = sparse([], [], Float64[], nnodes, nnodes)
-    #costmx = zeros(nnodes, nnodes)
-    for (c,e) in zip(costs,edges(network))
-        costmx[src(e),dst(e)] = c
-    end
+    costmx = matrixify(network, costs)
     flowmx = zero(costmx) # for computational purposes
 
     # Computing shortest paths
-    shortpaths = dijkstra_shortest_paths(network, 1:nzones, costmx)
+    #shortpaths = dijkstra_shortest_paths(network, 1:nzones, costmx)
+    shortpaths = dijkstra(network, 1:nzones, costmx)
     parentmx = shortpaths.parents
 
     # Determining flows
@@ -53,4 +50,4 @@ function allornothing(network::MetaDiGraph, trips::Array{<:Real,2}, costs::Array
     return flows
 end
 
-allornothing(network::MetaDiGraph, trips::Array{<:Real,2}, costfn::Function) = allornothing(network, trips, costfn(zeros(ne(network))).costs)
+allornothing(network::MetaDiGraph, trips::AbstractMatrix{<:Real}, costfn::Function) = allornothing(network, trips, costfn(zeros(ne(network))).costs)
