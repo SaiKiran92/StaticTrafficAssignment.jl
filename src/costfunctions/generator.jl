@@ -60,20 +60,29 @@ end
 abstract type ProblemType end
 abstract type UEProblem <: ProblemType end
 abstract type SOProblem <: ProblemType end
+
 function (f::CostFunctionGenerator)(::Type{UEProblem})
-    function fn(x::Array{<:Real,1}; returntsc::Bool=false, returnhessian::Bool=false, tolls=nothing)
-        times = f.times(x)
+    function fn(x::Array{<:Real,1}, ids=nothing, returnitems=[:costs]; tolls=nothing)
+        times = nothing
+        dtimes = nothing
+
+        if (:costs ∈ returnitems) | (:tsc ∈ returnitems)
+            times = f.times(x, ids)
+        end
+        if (:derivs ∈ returnitems)
+            dtimes = f.dtimes(x, ids)
+        end
+        tolls = (tolls == nothing) ? zero(x) : (ids == nothing) ? tolls : tolls[ids]
 
         rv = Dict()
-        rv[:costs] = times
-        if tolls != nothing
-            rv[:costs] += tolls
+        if :costs ∈ returnitems
+            rv[:costs] = times + tolls
         end
-        if returntsc
-            rv[:tsc] = totalsystemcost(x, times)
+        if :derivs ∈ returnitems
+            rv[:derivs] = dtimes
         end
-        if returnhessian
-            rv[:hessian] = Diagonal(f.dtimes(x))
+        if :tsc ∈ returnitems
+            rv[:tsc] = sum(x .* times)
         end
 
         return NamedTuple(rv)
@@ -83,17 +92,27 @@ function (f::CostFunctionGenerator)(::Type{UEProblem})
 end
 
 function (f::CostFunctionGenerator)(::Type{SOProblem})
-    function fn(x::Array{<:Real,1}; returntsc=true, returnhessian=false)
-        times = f.times(x)
-        dtimes = f.dtimes(x)
+    function fn(x::Array{<:Real,1}, ids=nothing, returnitems=[:costs])
+        times = nothing
+        dtimes = nothing
+
+        if (:costs ∈ returnitems) | (:tsc ∈ returnitems)
+            times = f.times(x, ids)
+            dtimes = f.dtimes(x, ids)
+        end
+        if (:derivs ∈ returnitems)
+            ddtimes = f.ddtimes(x, ids)
+        end
 
         rv = Dict()
-        rv[:costs] = times .+ x .* dtimes
-        if returntsc
-            rv[:tsc] = totalsystemcost(x, times)
+        if :costs ∈ returnitems
+            rv[:costs] = times + x .* dtimes
         end
-        if returnhessian
-            rv[:hessian] = Diagonal(2 * dtimes + x .* f.ddtimes(x))
+        if :derivs ∈ returnitems
+            rv[:derivs] = 2 * dtimes + x .* ddtimes
+        end
+        if :tsc ∈ returnitems
+            rv[:tsc] = sum(x .* times)
         end
 
         return NamedTuple(rv)
@@ -101,6 +120,3 @@ function (f::CostFunctionGenerator)(::Type{SOProblem})
 
     fn
 end
-
-totalsystemcost(x::Array{<:Real,1}, timesfn::Function) = sum(x .* timesfn(x))
-totalsystemcost(x::Array{<:Real,1}, times::Array{<:Real,1}) = sum(x .* times)

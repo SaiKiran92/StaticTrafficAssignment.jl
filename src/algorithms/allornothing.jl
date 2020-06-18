@@ -9,9 +9,11 @@ function allornothing(network::RoadNetwork,
 
     flows, addflows! = begin
         if basedon == :link
-            zeros(nlinks), ((orig, dest, lidx, v) -> (flows[lidx] += v;))
+            flows = zeros(nlinks)
+            flows, ((orig, dest, lidx, v) -> (flows[lidx] += v;))
         elseif basedon == :origin
-            zeros(nlinks, nzones), ((orig, dest, lidx, v) -> (flows[lidx,orig] += v;))
+            flows = zeros(nlinks, nzones)
+            flows, ((orig, dest, lidx, v) -> (flows[lidx,orig] += v;))
         end
     end
 
