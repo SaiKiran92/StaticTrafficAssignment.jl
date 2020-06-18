@@ -75,7 +75,6 @@ end
 function readnodetntp(filepath::String)
     data = read(filepath)
     data = data[:, 1:(end-1)]
-
     return data
 end
 
@@ -108,13 +107,16 @@ function readtntpdata(folderpath::String)
     @assert ftnode <= nnodes "First through node inconsistent"
 
     # building the network
-    network = MetaDiGraph(nnodes)
+    network = RoadNetwork(nnodes)
     set_prop!(network, :nzones, nzones)
 
     for row in eachrow(linkdf)
         e = Edge(row[:init_node], row[:term_node])
         add_edge!(network, e)
         set_props!(network, e, Dict(Symbol(n) => row[n] for n in names(row) if ~(n in (row[:init_node], row[:term_node]))))
+    end
+    for (i,e) in enumerate(edges(network))
+        set_prop!(network, e, :idx, i)
     end
 
     if :node in keys(filepaths)
@@ -130,3 +132,6 @@ function readtntpdata(folderpath::String)
 
     return (network = network, trips = trips, firstthroughnode = ftnode, bestsolution = bestsolution)
 end
+
+edgeidx(network::RoadNetwork, e::Edge) = get_prop(network, e, :idx)
+edgeidx(network::RoadNetwork, i, j) = get_prop(network, i, j, :idx)

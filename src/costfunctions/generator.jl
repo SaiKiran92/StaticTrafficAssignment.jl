@@ -26,9 +26,32 @@ struct CostFunctionGenerator <: Function
             end
         end
 
-        times(x) = [fn(xi) for (fn,xi) in zip(fns,x)]
-        dtimes(x) = [((dfn == nothing) ? nothing : dfn(xi)) for (dfn,xi) in zip(dfns,x)]
-        ddtimes(x) = [((ddfn == nothing) ? nothing : ddfn(xi)) for (ddfn,xi) in zip(ddfns,x)]
+        function times(x, ids=nothing)
+            if ids != nothing
+                tfns, tx = fns[ids], x[ids]
+            else
+                tfns, tx = fns, x
+            end
+            [fn(xi) for (fn,xi) in zip(tfns,tx)]
+        end
+
+        function dtimes(x, ids=nothing)
+            if ids != nothing
+                tdfns, tx = dfns[ids], x[ids]
+            else
+                tdfns, tx = dfns, x
+            end
+            [((dfn == nothing) ? nothing : dfn(xi)) for (dfn,xi) in zip(tdfns,tx)]
+        end
+
+        function ddtimes(x, ids=nothing)
+            if ids != nothing
+                tddfns, tx = ddfns[ids], x[ids]
+            else
+                tddfns, tx = ddfns, x
+            end
+            [((ddfn == nothing) ? nothing : ddfn(xi)) for (ddfn,xi) in zip(tddfns,tx)]
+        end
 
         return new(times, dtimes, ddtimes)
     end
@@ -37,7 +60,6 @@ end
 abstract type ProblemType end
 abstract type UEProblem <: ProblemType end
 abstract type SOProblem <: ProblemType end
-
 function (f::CostFunctionGenerator)(::Type{UEProblem})
     function fn(x::Array{<:Real,1}; returntsc::Bool=false, returnhessian::Bool=false, tolls=nothing)
         times = f.times(x)
