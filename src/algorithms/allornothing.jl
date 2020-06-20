@@ -2,7 +2,7 @@ function allornothing(network::RoadNetwork,
                       trips::AbstractMatrix{V},
                       costs::AbstractVector{T};
                       basedon::Symbol = :link,
-                      nothroughnodes = []) where {T<:Real, U<:Integer, V<:Real}
+                      firstthroughnode::U=1) where {T<:Real, U<:Integer, V<:Real}
     # Initialization
     nnodes, nlinks = nv(network), ne(network)
     nzones = get_prop(network, :nzones)
@@ -18,7 +18,7 @@ function allornothing(network::RoadNetwork,
     end
 
     # Computing shortest paths
-    _, parentmx = dijkstra(network, 1:nzones, costs; nothroughnodes=nothroughnodes)
+    _, parentmx = dijkstra(network, 1:nzones, costs; firstthroughnode=firstthroughnode)
 
     # Determining flows
     tripswaiting = copy(trips)
@@ -51,4 +51,4 @@ allornothing(network::RoadNetwork,
              trips::AbstractMatrix{T},
              costfn::Function;
              basedon::Symbol = :link,
-             nothroughnodes = []) where {T<:Real, U<:Integer} = allornothing(network, trips, costfn(zeros(ne(network))).costs; basedon=basedon, nothroughnodes=nothroughnodes)
+             firstthroughnode::U=1) where {T<:Real, U<:Integer} = allornothing(network, trips, costfn(zeros(ne(network))).costs; basedon=basedon, firstthroughnode=firstthroughnode)

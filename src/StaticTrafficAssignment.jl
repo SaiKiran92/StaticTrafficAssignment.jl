@@ -28,7 +28,8 @@ export
 RoadNetwork = MetaDiGraph
 
 include("utils.jl")
-include("data_loaders/TNTP_loader.jl")
+include("data_parsers/tntp_parser.jl")
+
 include("costfunctions/generator.jl")
 include("costfunctions/bprfn.jl")
 
@@ -37,6 +38,7 @@ include("algorithms/allornothing.jl")
 include("algorithms/linkbased/mosa.jl")
 include("algorithms/linkbased/frankwolfe.jl")
 include("algorithms/linkbased/conjugatefrankwolfe.jl")
+include("algorithms/bushbased/utils.jl")
 #include("algorithms/bushbased/algorithmB.jl")
 
 end

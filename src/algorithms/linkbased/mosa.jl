@@ -2,10 +2,10 @@ function mosa(network::RoadNetwork,
               trips::AbstractMatrix{T},
               costfn::Function;
               basedon=:link,
-              nothroughnodes = [],
+              firstthroughnode::U = 1,
               errtol=1e-4) where {T<:Real, U<:Integer}
     # initialize
-    flows = allornothing(network, trips, costfn; basedon=basedon, nothroughnodes=nothroughnodes)
+    flows = allornothing(network, trips, costfn; basedon=basedon, firstthroughnode=firstthroughnode)
 
     # start iteration
     err = 1.
@@ -13,7 +13,7 @@ function mosa(network::RoadNetwork,
     while err > errtol
         ## find target solution
         linkcosts = costfn(flows).costs
-        newflows = allornothing(network, trips, linkcosts; basedon=basedon, nothroughnodes=nothroughnodes)
+        newflows = allornothing(network, trips, linkcosts; basedon=basedon, firstthroughnode=firstthroughnode)
 
         ## find stepsize
         μ = 1/iterno

@@ -1,7 +1,7 @@
 function dijkstra(network::MetaDiGraph,
                   origin::U,
                   linkcosts::AbstractVector{T};
-                  nothroughnodes = []) where {T<:Real, U<:Integer}
+                  firstthroughnode::U=1) where {T<:Real, U<:Integer}
 
     nnodes = nv(network)
     costlabels = fill(typemax(T), nnodes)
@@ -16,7 +16,7 @@ function dijkstra(network::MetaDiGraph,
         for v in outneighbors(network, u)
             lidx = edgeidx(network, u, v)
             alt = costlabels[u] + linkcosts[lidx]
-            if (costlabels[v] > alt) & ((u ∉ nothroughnodes) | (u == origin))
+            if (costlabels[v] > alt) & ((u >= firstthroughnode) | (u == origin))
                 P[v] = costlabels[v] = alt #costlabels[u] + linkcosts[lidx]
                 parents[v] = u
             end
