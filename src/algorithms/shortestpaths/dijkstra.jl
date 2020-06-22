@@ -1,43 +1,42 @@
-function dijkstra(network::MetaDiGraph,
-                  origin::U,
-                  linkcosts::AbstractVector{T};
-                  firstthroughnode::U=1) where {T<:Real, U<:Integer}
+function dijkstra(net::AbstractNetwork,
+                  src::T,
+                  linkcosts::AbstractVector{U}) where {T<:Integer, U<:Real}
 
-    nnodes = nv(network)
-    costlabels = fill(typemax(T), nnodes)
-    parents = zeros(U, nnodes)
+    nnodes = numnodes(net)
+    costs = fill(typemax(U), nnodes)
+    parentmx = zeros(T, nnodes)
 
-    P = PriorityQueue{U,T}()
-    P[origin] = costlabels[origin] = 0
-    parents[origin] = 0
+    P = PriorityQueue{T,U}()
+    P[src] = costs[src] = 0
+    parentmx[src] = 0
 
     while !isempty(P)
         u = dequeue!(P)
-        for v in outneighbors(network, u)
-            lidx = edgeidx(network, u, v)
-            alt = costlabels[u] + linkcosts[lidx]
-            if (costlabels[v] > alt) & ((u >= firstthroughnode) | (u == origin))
-                P[v] = costlabels[v] = alt #costlabels[u] + linkcosts[lidx]
-                parents[v] = u
+        for v in outneighbors(net, u)
+            lidx = idx(net, u, v)
+            alt = costs[u] + linkcosts[lidx]
+            if (costs[v] > alt) & (throughflowallowed(net, u) | (u == src))
+                P[v] = costs[v] = alt
+                parentmx[v] = u
             end
         end
     end
 
-    return (costs = costlabels, parents = parents)
+    return (costs = costs, parentmx = parentmx)
 end
 
-function dijkstra(network::MetaDiGraph,
-                  origins::AbstractVector{U},
-                  linkcosts::AbstractVector{T};
-                  nothroughnodes = []) where {T<:Real, U<:Integer}
+function dijkstra(net::AbstractNetwork,
+                  srcs::AbstractVector{T},
+                  linkcosts::AbstractVector{U}) where {T<:Integer, U<:Real}
 
-    norigins = length(origins)
-    costlabels, parents = zeros(T, norigins, nv(network)), zeros(U, norigins, nv(network))
-    @sync @distributed for i in 1:norigins
-        res = dijkstra(network, origins[i], linkcosts)
-        costlabels[i,:] = res[1]
-        parents[i,:] = res[2]
+    nsrcs = length(srcs)
+    nnodes = numnodes(net)
+    costs, parentmx = zeros(U, nsrcs, nnodes), zeros(T, nsrcs, nnodes)
+    @sync @distributed for i in 1:nsrcs
+        res = dijkstra(net, srcs[i], linkcosts)
+        costs[i,:] = res[1]
+        parentmx[i,:] = res[2]
     end
 
-    return (costs = costlabels, parents = parents)
+    return (costs = costs, parentmx = parentmx)
 end

@@ -1,44 +1,59 @@
 module StaticTrafficAssignment
 
-using DataFrames: nrow
-using LinearAlgebra: Diagonal
-using LightGraphs: Edge, add_edge!, edges, src, dst, nv, ne, inneighbors, outneighbors, indegree, outdegree
-using MetaGraphs: MetaDiGraph, set_prop!, set_props!, get_prop, props
-using DataStructures: PriorityQueue, dequeue!
+using CSV: read
+using DataFrames: DataFrameRow, nrow
+using LightGraphs: AbstractGraph, AbstractEdge
 using Distributed: @distributed
+using DataStructures: PriorityQueue, dequeue!
+using LinearAlgebra: Diagonal
 
-# input and costs
+import Base: show
+
+# i/o
+export readtntpdata
+
+# types
 export
-        RoadNetwork,
-        readtntpdata,
-        CostFunctionGenerator,
-        ProblemType,
-        UEProblem,
-        SOProblem,
-        BPR
+        AbstractNework, AbstractLink, AbstractZone,
+        SimpleNetwork, SimpleLink, SimpleZone
 
-# algorithms
 export
-        dijkstra,
-        allornothing,
-        mosa,
-        frankwolfe,
-        conjugatefrankwolfe
+        add_link!, rem_link!, add_zone!, rem_zone!,
+        idx, numzones, numlinks, numsources, numsinks,
+        sources, sinks, links, zones,
+        outneighbors, inneighbors, outdegree, indegree, fstar, bstar,
+        upn, dwn, props,
+        id, issource, issink, throughflowallowed
 
-RoadNetwork = MetaDiGraph
+export CostFunction, CostFunctionUE, CostFunctionSO, TimeFunctionContainer, BPR
+
+export dijkstra, allornothing, msa, frankwolfe, conjugatefrankwolfe
 
 include("utils.jl")
+
+# i/o
+include("data_parsers/utils.jl")
 include("data_parsers/tntp_parser.jl")
 
-include("costfunctions/generator.jl")
-include("costfunctions/bprfn.jl")
+# interface and simple types
+include("interface.jl")
 
+include("SimpleNetworks/simplelink.jl")
+include("SimpleNetworks/simplezone.jl")
+include("SimpleNetworks/simplenetwork.jl")
+
+# costs
+include("costfunctions/utils.jl")
+include("costfunctions/time_function_container.jl")
+include("costfunctions/generator.jl")
+include("costfunctions/bpr.jl")
+
+# algorithms
+include("algorithms/utils.jl")
 include("algorithms/shortestpaths/dijkstra.jl")
 include("algorithms/allornothing.jl")
-include("algorithms/linkbased/mosa.jl")
+include("algorithms/linkbased/msa.jl")
 include("algorithms/linkbased/frankwolfe.jl")
 include("algorithms/linkbased/conjugatefrankwolfe.jl")
-include("algorithms/bushbased/utils.jl")
-#include("algorithms/bushbased/algorithmB.jl")
 
-end
+end # module StaticTrafficAssignment
