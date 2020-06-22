@@ -38,9 +38,9 @@ include("data_parsers/tntp_parser.jl")
 # interface and simple types
 include("interface.jl")
 
-include("SimpleNetworks/simplelink.jl")
-include("SimpleNetworks/simplezone.jl")
-include("SimpleNetworks/simplenetwork.jl")
+include("simplenetworks/simplelink.jl")
+include("simplenetworks/simplezone.jl")
+include("simplenetworks/simplenetwork.jl")
 
 # costs
 include("costfunctions/utils.jl")

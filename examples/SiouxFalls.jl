@@ -1,23 +1,23 @@
 using StaticTrafficAssignment
-using LightGraphs, MetaGraphs
+using DataFrames
 
-# reading data
-folderpath = "/Users/mayakuntlasaikiran/.julia/dev/StaticTrafficAssignment/examples/data/SiouxFalls/"
-network, trips, firstthroughnode, bestsolution = readtntpdata(folderpath);
+nnodes, ftnode, linkdf, trips, geometry, bestsolution = readtntpdata("examples/data/SiouxFalls/")
 
-# First run includes compilation time - So, no performance check here
-nothroughnodes = collect(1:(firstthroughnode-1))
-costgen = CostFunctionGenerator(network, BPR)
-uecostfn = costgen(UEProblem)
-socostfn = costgen(SOProblem)
+nzones = size(trips)[1]
+zonedf = DataFrame(:id => 1:nzones, :issource => ones(Bool, nzones), :issink => ones(Bool, nzones), :thruallowed => (1:nzones) .>= ftnode)
 
-aonsoln = allornothing(network, trips, uecostfn, nothroughnodes=nothroughnodes)
+network = SimpleNetwork(nnodes, linkdf, zonedf; idkey=:id, issrckey=:issource, issnkkey=:issink, thrukey=:thruallowed,  upnkey=:init_node, dwnkey=:term_node)
 
-uesoln_mosa = frankwolfe(network, trips, uecostfn, nothroughnodes=nothroughnodes)
-sosoln_mosa = frankwolfe(network, trips, socostfn, nothroughnodes=nothroughnodes);
+uecostfn = CostFunctionUE(network, BPR)
+socostfn = CostFunctionSO(network, BPR)
 
-uesoln_fw = frankwolfe(network, trips, uecostfn, nothroughnodes=nothroughnodes)
-sosoln_fw = frankwolfe(network, trips, socostfn, nothroughnodes=nothroughnodes);
+@time aonsoln = allornothing(network, trips, uecostfn);
 
-uesoln_cfw = conjugatefrankwolfe(network, trips, uecostfn, nothroughnodes=nothroughnodes)
-sosoln_cfw = conjugatefrankwolfe(network, trips, socostfn, nothroughnodes=nothroughnodes);
+@time uesoln_msa = msa(network, trips, uecostfn);
+@time sosoln_msa = msa(network, trips, socostfn);
+
+@time uesoln_fw = frankwolfe(network, trips, uecostfn);
+@time sosoln_fw = frankwolfe(network, trips, socostfn);
+
+@time uesoln_cfw = conjugatefrankwolfe(network, trips, uecostfn);
+@time sosoln_cfw = conjugatefrankwolfe(network, trips, socostfn);
