@@ -1,10 +1,3 @@
-using CSV: read
-
-struct InputError <: Exception
-    s::String
-end
-Base.showerror(io::IO, ex::InputError) = print(io, ex.s)
-
 # helper function
 function readvalue(io, s::String, dtype=Int)
     l = strip(readline(io))
@@ -26,7 +19,7 @@ function readnettntp(filepath::String;
         headerrow = 4
         while(headerrow += 1; ((line = strip(readline(io))) == "") || !startswith(line, "~"))
             if eof(io)
-                throw(InputError("network data"))
+                throw(InputError("Check network data."))
             end
         end
 
@@ -100,28 +93,8 @@ function readtntpdata(folderpath::String)
     nzones, nnodes, ftnode, nlinks, linkdf = readnettntp(filepaths[:net])
     nzones2, totalflow, trips = readtriptntp(filepaths[:trips])
 
-    @assert nzones == nzones2 "Number of zones inconsistent"
-    @assert totalflow ≈ sum(trips) "Number of trips inconsistent"
-    @assert nlinks == nrow(linkdf) "Number of links inconsistent"
-    @assert all((1 .<= linkdf.init_node .<= nnodes) .& (1 .<= linkdf.term_node .<= nnodes)) "Number of nodes inconsistent"
-    @assert ftnode <= nnodes "First through node inconsistent"
-
-    # building the network
-    network = RoadNetwork(nnodes)
-    set_prop!(network, :nzones, nzones)
-
-    for row in eachrow(linkdf)
-        e = Edge(row[:init_node], row[:term_node])
-        add_edge!(network, e)
-        set_props!(network, e, Dict(Symbol(n) => row[n] for n in names(row) if ~(n in (row[:init_node], row[:term_node]))))
-    end
-    for (i,e) in enumerate(edges(network))
-        set_prop!(network, e, :idx, i)
-    end
-
     if :node in keys(filepaths)
         geometry = readnodetntp(filepaths[:node])
-        set_prop!(network, :geometry, geometry)
     end
 
     bestsolution = nothing
@@ -130,8 +103,16 @@ function readtntpdata(folderpath::String)
         @assert nlinks == nrow(bestsolution) "Number of links inconsistent with flow file"
     end
 
-    return (network = network, trips = trips, firstthroughnode = ftnode, bestsolution = bestsolution)
-end
+    @assert nzones == nzones2 "Number of zones inconsistent"
+    @assert totalflow ≈ sum(trips) "Number of trips inconsistent"
+    @assert nlinks == nrow(linkdf) "Number of links inconsistent"
+    @assert all((1 .<= linkdf.init_node .<= nnodes) .& (1 .<= linkdf.term_node .<= nnodes)) "Number of nodes inconsistent"
+    @assert ftnode <= nnodes "First through node inconsistent"
 
-edgeidx(network::RoadNetwork, e::Edge) = get_prop(network, e, :idx)
-edgeidx(network::RoadNetwork, i, j) = get_prop(network, i, j, :idx)
+    return (nnodes = nnodes,
+            ftnode = ftnode,
+            linkdf = linkdf,
+            trips = trips,
+            geometry = geometry,
+            bestsolution = bestsolution)
+end

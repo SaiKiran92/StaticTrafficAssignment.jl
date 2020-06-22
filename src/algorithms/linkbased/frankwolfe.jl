@@ -1,27 +1,27 @@
-function frankwolfe(network::RoadNetwork,
+function frankwolfe(network::AbstractNetwork,
               trips::AbstractMatrix{T},
               costfn::Function;
               basedon=:link,
-              nothroughnodes = [],
-              errtol=1e-4) where {T<:Real, U<:Integer}
+              errtol=1e-4) where {T<:Real}
     # initialize
-    flows = allornothing(network, trips, costfn; basedon=basedon, nothroughnodes=nothroughnodes)
+    flows = allornothing(network, trips, costfn; basedon=basedon)
 
     # start iteration
     err = 1.
     while err > errtol
         ## find target solution
-        linkcosts = costfn(flows).costs
-        newflows = allornothing(network, trips, linkcosts; basedon=basedon, nothroughnodes=nothroughnodes)
+        linkcosts, = costfn(flows)
+        shortflows = allornothing(network, trips, linkcosts; basedon=basedon)
 
         ## find stepsize
-        μ = bisection((μ) -> sum(costfn(μ * newflows + (1-μ) * flows).costs .* (newflows - flows)))
+        Δflows = shortflows - flows
+        μ = bisection((μ) -> sum(costfn(flows + μ * Δflows).costs .* Δflows))
 
         ## calculate new link travel times
-        flows += μ * (newflows - flows)
+        flows += μ * Δflows
 
         ## calculate error
-        err = sum(flows .* linkcosts)/sum(newflows .* linkcosts) - 1.
+        err = sum(flows .* linkcosts)/sum(shortflows .* linkcosts) - 1.
     end
     return (flows, err)
 end
