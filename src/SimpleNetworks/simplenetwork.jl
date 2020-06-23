@@ -108,9 +108,9 @@ end
 
 eltype(x::SimpleNetwork{T}) where T = T
 
-idx(net::SimpleNetwork{T}, i::T, j::T) where {T<:Integer} = net.fpoints[i]-1+searchsortedfirst(net.fadjlist[i],j)
-idx(net::SimpleNetwork{T}, l::AbstractLink{T}) where {T<:Integer} = idx(net, upn(l), dwn(l))
-idx(net::SimpleNetwork{T}, t::Tuple{T,T}) where {T<:Integer} = idx(net, t...)
+idx(net::SimpleNetwork{T}, i::U, j::U) where {T<:Integer, U<:Integer} = net.fpoints[i]-1+searchsortedfirst(net.fadjlist[i],j)
+idx(net::SimpleNetwork{T}, l::AbstractLink{U}) where {T<:Integer, U<:Integer} = idx(net, upn(l), dwn(l))
+idx(net::SimpleNetwork{T}, t::Tuple{U,U}) where {T<:Integer, U<:Integer} = idx(net, t...)
 
 numnodes(net::SimpleNetwork) = length(net.fpoints)-1
 numzones(net::SimpleNetwork) = length(net.zones)
@@ -123,16 +123,16 @@ sinks(net::SimpleNetwork) = id.(filter(issink, net.zones))
 zones(net::SimpleNetwork) = net.zones
 links(net::SimpleNetwork) = net.links
 
-outneighbors(net::SimpleNetwork{T}, i::T) where T<:Integer = net.fadjlist[i]
-inneighbors(net::SimpleNetwork{T}, j::T) where T<:Integer = net.badjlist[j]
+outneighbors(net::SimpleNetwork{T}, i::U) where {T<:Integer, U<:Integer} = net.fadjlist[i]
+inneighbors(net::SimpleNetwork{T}, j::U) where {T<:Integer, U<:Integer} = net.badjlist[j]
 
-outdegree(net::SimpleNetwork{T}, i::T) where T<:Integer = length(net.fadjlist[i])
-indegree(net::SimpleNetwork{T}, j::T) where T<:Integer = length(net.badjlist[j])
+outdegree(net::SimpleNetwork{T}, i::U) where {T<:Integer, U<:Integer} = length(net.fadjlist[i])
+indegree(net::SimpleNetwork{T}, j::U) where {T<:Integer, U<:Integer} = length(net.badjlist[j])
 
-fstar(net::SimpleNetwork{<:Integer}) = (net.fadjlist, net.fpoints)
-bstar(net::SimpleNetwork{<:Integer}) = (net.badjlist, net.bpoints)
+fstar(net::SimpleNetwork{<:Integer}) = (adjlist = net.fadjlist, points = net.fpoints)
+bstar(net::SimpleNetwork{<:Integer}) = (adjlist = net.badjlist, points = net.bpoints)
 
-issource(net::SimpleNetwork{T}, i::T) where {T<:Integer} = issource(net.zones[i])
-issink(net::SimpleNetwork{T}, i::T) where {T<:Integer} = issink(net.zones[i])
-throughflowallowed(net::SimpleNetwork{T}, i::T) where {T<:Integer} = throughflowallowed(net.zones[i])
-props(net::SimpleNetwork{T}, i::T) where {T<:Integer} = props(net.zones[i])
+issource(net::SimpleNetwork{T}, i::U) where {T<:Integer, U<:Integer} = issource(net.zones[i])
+issink(net::SimpleNetwork{T}, i::U) where {T<:Integer, U<:Integer} = issink(net.zones[i])
+throughflowallowed(net::SimpleNetwork{T}, i::U) where {T<:Integer, U<:Integer} = throughflowallowed(net.zones[i])
+props(net::SimpleNetwork{T}, i::U) where {T<:Integer, U<:Integer} = props(net.zones[i])

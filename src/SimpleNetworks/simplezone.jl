@@ -22,5 +22,3 @@ issource(z::SimpleZone{T}) where T = z.issource
 issink(z::SimpleZone{T}) where T = z.issink
 throughflowallowed(z::SimpleZone{T}) where T = z.thruallowed
 props(z::SimpleZone{T}) where T = z.props
-
-show(io::IOStream, z::AbstractZone) = print(io, "Zone $(z.id)")

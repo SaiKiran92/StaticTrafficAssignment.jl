@@ -15,7 +15,7 @@ function dijkstra(net::AbstractNetwork,
         for v in outneighbors(net, u)
             lidx = idx(net, u, v)
             alt = costs[u] + linkcosts[lidx]
-            if (costs[v] > alt) & (throughflowallowed(net, u) | (u == src))
+            if (costs[v] > alt) && (throughflowallowed(net, u) || (u == src))
                 P[v] = costs[v] = alt
                 parentmx[v] = u
             end

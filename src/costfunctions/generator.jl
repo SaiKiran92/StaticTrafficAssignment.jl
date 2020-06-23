@@ -1,4 +1,3 @@
-abstract type CostFunction <: Function end
 
 struct CostFunctionUE <: CostFunction
     tfc::TimeFunctionContainer

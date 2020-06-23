@@ -14,20 +14,22 @@ export readtntpdata
 
 # types
 export
-        AbstractNework, AbstractLink, AbstractZone,
-        SimpleNetwork, SimpleLink, SimpleZone
-
-export
+        AbstractNework, AbstractLink, AbstractZone, AbstractBush,
         add_link!, rem_link!, add_zone!, rem_zone!,
         idx, numzones, numlinks, numsources, numsinks,
         sources, sinks, links, zones,
         outneighbors, inneighbors, outdegree, indegree, fstar, bstar,
         upn, dwn, props,
-        id, issource, issink, throughflowallowed
+        id, issource, issink, throughflowallowed, src, net
 
+export
+        SimpleNetwork, SimpleLink, SimpleZone, SimpleBush
+
+# cost functions
 export CostFunction, CostFunctionUE, CostFunctionSO, TimeFunctionContainer, BPR
 
-export dijkstra, allornothing, msa, frankwolfe, conjugatefrankwolfe
+# algorithms
+export dijkstra, allornothing, msa, frankwolfe, conjugatefrankwolfe, algorithmB
 
 include("utils.jl")
 
@@ -38,9 +40,14 @@ include("data_parsers/tntp_parser.jl")
 # interface and simple types
 include("interface.jl")
 
-include("simplenetworks/simplelink.jl")
-include("simplenetworks/simplezone.jl")
-include("simplenetworks/simplenetwork.jl")
+include("SimpleNetworks/SimpleNetworks.jl")
+using .SimpleNetworks
+
+#import SimpleNetworks
+
+#include("simplenetworks/simplelink.jl")
+#include("simplenetworks/simplezone.jl")
+#include("simplenetworks/simplenetwork.jl")
 
 # costs
 include("costfunctions/utils.jl")
@@ -52,8 +59,12 @@ include("costfunctions/bpr.jl")
 include("algorithms/utils.jl")
 include("algorithms/shortestpaths/dijkstra.jl")
 include("algorithms/allornothing.jl")
+
 include("algorithms/linkbased/msa.jl")
 include("algorithms/linkbased/frankwolfe.jl")
 include("algorithms/linkbased/conjugatefrankwolfe.jl")
+
+include("algorithms/bushbased/algorithmB.jl")
+
 
 end # module StaticTrafficAssignment

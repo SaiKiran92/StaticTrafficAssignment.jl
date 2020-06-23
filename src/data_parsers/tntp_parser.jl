@@ -93,6 +93,7 @@ function readtntpdata(folderpath::String)
     nzones, nnodes, ftnode, nlinks, linkdf = readnettntp(filepaths[:net])
     nzones2, totalflow, trips = readtriptntp(filepaths[:trips])
 
+    geometry = nothing
     if :node in keys(filepaths)
         geometry = readnodetntp(filepaths[:node])
     end
