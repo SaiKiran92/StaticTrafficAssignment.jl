@@ -8,14 +8,27 @@
 
 This package contains functions to load road network data in TNTP format. Check out [this GitHub repository](https://github.com/bstabler/TransportationNetworks) to learn more about the format and download some standard networks.
 
-I have implemented four assignment algorithms: All-Or-Nothing, Method of Successive Averages, Frank-Wolfe and Conjugate Frank-Wolfe. More will be coming soon.
 
-Custom delay functions are supported. Both UE and SO assignments can be easily calculated.
+## Installation
+Installation is straightforward: enter Pkg mode by hitting `]`, and then
+```julia-repl
+(v1.0) pkg> add StaticTrafficAssignment
+```
 
-Sorry about the lack of documentation. Will try to add a couple more examples soon. Also, I need to add proper tests ASAP.
-
-## Coming soon
+## Available
 ### Algorithms
+1. All-Or-Nothing
+2. Method of Successive Averages
+3. Frank-Wolfe
+4. Conjugate Frank-Wolfe
+5. Algorithm B
 
-- Biconjugate Frank-Wolfe
-- Algorithm B
+### Other supported features
+1. Custom delay functions
+
+## To Do
+- Implement a couple more bush-based algorithms.
+- Provide support for user-heterogeneity (or multi-class models) and some advanced applications of traffic assignment problems.
+
+## Documentation and Testing
+Will be made available soon.

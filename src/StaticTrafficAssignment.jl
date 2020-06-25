@@ -12,7 +12,7 @@ import Base: show
 # i/o
 export readtntpdata
 
-# types
+# interface
 export
         AbstractNework, AbstractLink, AbstractZone, AbstractBush,
         has_link, add_link!, rem_link!, add_zone!, rem_zone!,
@@ -22,8 +22,6 @@ export
         upn, dwn, props,
         id, issource, issink, throughflowallowed, src, net, topo_order
 
-export SimpleNetwork, SimpleLink, SimpleZone, SimpleBush
-
 # cost functions
 export CostFunction, CostFunctionUE, CostFunctionSO, TimeFunctionContainer, BPR
 
@@ -31,6 +29,9 @@ export CostFunction, CostFunctionUE, CostFunctionSO, TimeFunctionContainer, BPR
 export
         dijkstra, topologicalorder, orderednodes, acyclic,
         allornothing, msa, frankwolfe, conjugatefrankwolfe, algorithmB
+
+# simple types
+export SimpleNetwork, SimpleLink, SimpleZone, SimpleBush
 
 include("utils.jl")
 
@@ -60,6 +61,7 @@ include("algorithms/linkbased/conjugatefrankwolfe.jl")
 
 include("algorithms/bushbased/algorithmB.jl")
 
+# simple types
 include("SimpleNetworks/SimpleNetworks.jl")
 using .SimpleNetworks
 
