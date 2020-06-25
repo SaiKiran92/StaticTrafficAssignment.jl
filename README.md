@@ -23,7 +23,7 @@ Installation is straightforward: enter Pkg mode by hitting `]`, and then
 4. Conjugate Frank-Wolfe
 5. Algorithm B
 
-### Supported features
+### Features
 1. Custom delay functions
 
 ## To Do
