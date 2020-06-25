@@ -3,7 +3,7 @@ function algorithmB(network::AbstractNetwork{T},
                     trips::Matrix{U},
                     costfn::CostFunction;
                     bushtype=SimpleBush{T},
-                    λ=1e6,
+                    λ=0.01,
                     maxiter=1000,
                     errtol=1e-4) where {T<:Integer, U<:Real}
 
@@ -40,12 +40,8 @@ function algorithmB(network::AbstractNetwork{T},
                         continue
                     end
 
-                    spath, lpath = try
-                        pathto(sparentvec, j), pathto(lparentvec, j)
-                    catch
-                        println(r, "\t", j, "\t", trips[r,j])
-                        error()
-                    end
+                    spath = pathto(sparentvec, j)
+                    lpath = pathto(lparentvec, j)
 
                     max_i = min(length(spath), length(lpath))
 
@@ -78,23 +74,18 @@ function algorithmB(network::AbstractNetwork{T},
 
                     flows[ssegids,r] .+= dx
                     flows[lsegids,r] .-= dx
-                    if (dx < 0.)
-                        println("negative dx: $dx")
-                    end
-                    #println(dx/lflow)
 
                     # check any zero flows on longpath
                     for lsi in lsegids
                         if iszero(flows[lsi,r])
                             totalshift[lsi,r] = true
-                        elseif flows[lsi, r] ≈ 0.
-                            println("nearly zero: $(flows[lsi,r])")
                         end
                     end
                 end
             end
             totalshift .&= iszero.(flows)
-            linkcosts, linkcostdrvs = costfn(flows; returnitems=[:costs, :derivs])
+            tmpd = costfn(flows; returnitems=[:costs, :derivs]) # careful with the order
+            linkcosts, linkcostdrvs = tmpd[:costs], tmpd[:derivs]
             numer = 0.
             denom = 0.
             for (i,bush) in enumerate(bushes)
@@ -104,21 +95,21 @@ function algorithmB(network::AbstractNetwork{T},
                 denom += sum(sflows .* linkcosts)
             end
             err = numer/denom - 1.
-            println(nadded + nremoved, "\t", outererr, "\t", err)
+            #println(iterno, "\t", outererr, "\t", err)
         end
 
         # update bushes
-        nadded, nremoved = updatebushes!(bushes, flows, linkcosts, totalshift)
+        nadded, nremoved = updatebushes!(bushes, flows, linkcosts)
 
         outersflows = allornothing(network, trips, linkcosts; basedon=:link)
         outererr = sum(flows .* linkcosts)/sum(outersflows .* linkcosts) - 1.
-        println(nadded, "\t", nremoved, "\t", outererr)
         iterno += 1
+        #println(nadded + nremoved, "\t", iterno, "\t", outererr)
     end
-    return flows
+    return (flows, outererr)
 end
 
-function updatebushes!(bushes::Vector{<:AbstractBush}, flows::Matrix, linkcosts::Vector, totalshift::Matrix{Bool})
+function updatebushes!(bushes::Vector{<:AbstractBush}, flows::Matrix, linkcosts::Vector)
     nadded, nremoved = 0, 0
     for (iteri,bush) in enumerate(bushes)
         r = src(bush)

@@ -21,3 +21,6 @@ socostfn = CostFunctionSO(network, BPR)
 
 @time uesoln_cfw = conjugatefrankwolfe(network, trips, uecostfn);
 @time sosoln_cfw = conjugatefrankwolfe(network, trips, socostfn);
+
+@time uesoln_B = algorithmB(network, trips, uecostfn; λ=0.1);
+@time sosoln_B = algorithmB(network, trips, socostfn; λ=0.05);
