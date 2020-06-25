@@ -1,9 +1,9 @@
 function conjugatefrankwolfe(network::AbstractNetwork,
-                             trips::AbstractMatrix{T},
+                             trips::Matrix,
                              costfn::Function;
                              basedon=:link,
                              errtol=1e-4,
-                             δ=1e-3) where {T<:Real}
+                             δ=1e-3)
     # initialize
     flows = allornothing(network, trips, costfn; basedon=basedon)
 
@@ -12,7 +12,7 @@ function conjugatefrankwolfe(network::AbstractNetwork,
     oldflows = copy(flows)
     while err > errtol
         ## find target solution
-        tmp = costfn(flows, nothing, [:costs, :derivs])
+        tmp = costfn(flows; returnitems=[:costs, :derivs])
         linkcosts, H = tmp[:costs], Diagonal(tmp[:derivs])
         shortflows = allornothing(network, trips, linkcosts; basedon=basedon)
 

@@ -4,11 +4,11 @@ function dijkstra(net::AbstractNetwork,
 
     nnodes = numnodes(net)
     costs = fill(typemax(U), nnodes)
-    parentmx = zeros(T, nnodes)
+    parentvec = zeros(T, nnodes)
 
     P = PriorityQueue{T,U}()
     P[src] = costs[src] = 0
-    parentmx[src] = 0
+    parentvec[src] = src
 
     while !isempty(P)
         u = dequeue!(P)
@@ -17,12 +17,12 @@ function dijkstra(net::AbstractNetwork,
             alt = costs[u] + linkcosts[lidx]
             if (costs[v] > alt) && (throughflowallowed(net, u) || (u == src))
                 P[v] = costs[v] = alt
-                parentmx[v] = u
+                parentvec[v] = u
             end
         end
     end
 
-    return (costs = costs, parentmx = parentmx)
+    return (costs = costs, parentvec = parentvec)
 end
 
 function dijkstra(net::AbstractNetwork,

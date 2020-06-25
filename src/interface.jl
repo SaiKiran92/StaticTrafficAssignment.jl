@@ -46,13 +46,15 @@ props(z::AbstractZone) = _NI("props")
 # Interface for AbstractLink
 #
 
-upn(l::AbstractLink) = _NI("upn")
-dwn(l::AbstractLink) = _NI("dwn")
+upn(l::AbstractLink) = _NI("upn") # upnode
+dwn(l::AbstractLink) = _NI("dwn") # downnode
 props(l::AbstractLink) = _NI("props")
 
 #
 # Interface for AbstractNetwork
 #
+
+has_link(n::AbstractNetwork, i, j) = _NI("has_link")
 
 idx(n::AbstractNetwork, args...; kwargs...) = _NI("idx")
 
@@ -66,7 +68,6 @@ sources(n::AbstractNetwork) = _NI("sources")
 sinks(n::AbstractNetwork) = _NI("sinks")
 zones(n::AbstractNetwork) = _NI("zones")
 links(n::AbstractNetwork) = _NI("links")
-
 
 outneighbors(net::AbstractNetwork{T}, i::U) where {T<:Integer, U<:Integer} = _NI("outneighbors")
 inneighbors(net::AbstractNetwork{T}, j::U) where {T<:Integer, U<:Integer} = _NI("inneighbors")

@@ -4,8 +4,8 @@ using DataFrames: DataFrameRow
 
 import StaticTrafficAssignment:
         AbstractNetwork, AbstractLink, AbstractZone, AbstractBush,
-        CostFunction, dijkstra,
-        add_link!, rem_link!, add_zone!, rem_zone!,
+        CostFunction, dijkstra, topologicalorder, orderednodes,
+        has_link, add_link!, rem_link!, add_zone!, rem_zone!,
         idx, numnodes, numzones, numlinks, numsources, numsinks,
         sources, sinks, links, zones,
         outneighbors, inneighbors, outdegree, indegree, fstar, bstar,

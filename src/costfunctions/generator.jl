@@ -7,7 +7,7 @@ struct CostFunctionUE <: CostFunction
     end
 end
 
-function (f::CostFunctionUE)(x::Array{<:Real,1}, ids=nothing, returnitems=[:costs]; tolls=nothing)
+function (f::CostFunctionUE)(x::Array{<:Real,1}, ids=nothing; returnitems=[:costs], tolls=nothing)
     t, dt = nothing, nothing
 
     if (:costs ∈ returnitems) || (:tsc ∈ returnitems)
@@ -28,6 +28,7 @@ function (f::CostFunctionUE)(x::Array{<:Real,1}, ids=nothing, returnitems=[:cost
     if :tsc ∈ returnitems
         rv[:tsc] = sum(x .* t)
     end
+    
     return NamedTuple(rv)
 end
 
@@ -39,7 +40,7 @@ struct CostFunctionSO <: CostFunction
     end
 end
 
-function (f::CostFunctionSO)(x::Array{<:Real,1}, ids=nothing, returnitems=[:costs]; tolls=nothing)
+function (f::CostFunctionSO)(x::Array{<:Real,1}, ids=nothing; returnitems=[:costs], tolls=nothing)
     t, dt, ddt = nothing, nothing, nothing
 
     if (:costs ∈ returnitems) || (:tsc ∈ returnitems)
@@ -65,3 +66,5 @@ function (f::CostFunctionSO)(x::Array{<:Real,1}, ids=nothing, returnitems=[:cost
     end
     return NamedTuple(rv)
 end
+
+(f::CostFunction)(x::AbstractMatrix, args...; kwargs...) = f(sum(x, dims=2)[:,1], args...; kwargs...)

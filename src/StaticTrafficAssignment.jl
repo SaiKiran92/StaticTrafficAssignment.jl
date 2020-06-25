@@ -15,21 +15,22 @@ export readtntpdata
 # types
 export
         AbstractNework, AbstractLink, AbstractZone, AbstractBush,
-        add_link!, rem_link!, add_zone!, rem_zone!,
-        idx, numzones, numlinks, numsources, numsinks,
+        has_link, add_link!, rem_link!, add_zone!, rem_zone!,
+        idx, numnodes, numzones, numlinks, numsources, numsinks,
         sources, sinks, links, zones,
         outneighbors, inneighbors, outdegree, indegree, fstar, bstar,
         upn, dwn, props,
-        id, issource, issink, throughflowallowed, src, net
+        id, issource, issink, throughflowallowed, src, net, topo_order
 
-export
-        SimpleNetwork, SimpleLink, SimpleZone, SimpleBush
+export SimpleNetwork, SimpleLink, SimpleZone, SimpleBush
 
 # cost functions
 export CostFunction, CostFunctionUE, CostFunctionSO, TimeFunctionContainer, BPR
 
 # algorithms
-export dijkstra, allornothing, msa, frankwolfe, conjugatefrankwolfe, algorithmB
+export
+        dijkstra, topologicalorder, orderednodes, acyclic,
+        allornothing, msa, frankwolfe, conjugatefrankwolfe, algorithmB
 
 include("utils.jl")
 
@@ -37,17 +38,8 @@ include("utils.jl")
 include("data_parsers/utils.jl")
 include("data_parsers/tntp_parser.jl")
 
-# interface and simple types
+# interface
 include("interface.jl")
-
-include("SimpleNetworks/SimpleNetworks.jl")
-using .SimpleNetworks
-
-#import SimpleNetworks
-
-#include("simplenetworks/simplelink.jl")
-#include("simplenetworks/simplezone.jl")
-#include("simplenetworks/simplenetwork.jl")
 
 # costs
 include("costfunctions/utils.jl")
@@ -58,6 +50,8 @@ include("costfunctions/bpr.jl")
 # algorithms
 include("algorithms/utils.jl")
 include("algorithms/shortestpaths/dijkstra.jl")
+include("algorithms/topologicalorder.jl")
+include("algorithms/shortestpaths/acyclic.jl")
 include("algorithms/allornothing.jl")
 
 include("algorithms/linkbased/msa.jl")
@@ -66,5 +60,7 @@ include("algorithms/linkbased/conjugatefrankwolfe.jl")
 
 include("algorithms/bushbased/algorithmB.jl")
 
+include("SimpleNetworks/SimpleNetworks.jl")
+using .SimpleNetworks
 
 end # module StaticTrafficAssignment

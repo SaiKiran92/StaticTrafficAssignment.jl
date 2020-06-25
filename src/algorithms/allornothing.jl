@@ -1,49 +1,47 @@
+function allornothing(network::AbstractNetwork,r,trips::Vector,costs::Vector)
+    #nlinks = numlinks(network)
+    zoneids = id.(zones(network))
+    flows = zero(costs)
+
+    _, parentvec = dijkstra(network, r, costs)
+    for j in zoneids
+        t = trips[j]
+        if isapprox(t, 0.) | (r == j)
+            continue
+        end
+
+        # Finding the shortest path
+        p = pathto(parentvec, j)
+
+        # Assigning flows
+        for l in p
+            flows[idx(network, l)] += t
+        end
+
+    end
+    return flows
+end
+
 function allornothing(network::AbstractNetwork,
-                      trips::AbstractMatrix{U},
-                      costs::AbstractVector{T};
+                      trips::Matrix{U},
+                      costs::Vector{T};
                       basedon::Symbol = :link) where {T<:Real, U<:Real}
     # Initialization
-    nnodes, nlinks, nzones = numnodes(network), numlinks(network), numzones(network)
+    nnodes, nzones = numnodes(network), numzones(network)
+    nlinks = length(costs)
     zonelist = zones(network)
     zoneids = id.(zonelist)
 
-    flows, addflows! = begin
+    flows = (basedon == :link) ? zeros(nlinks) : (basedon == :origin) ? zeros(nlinks, nzones) : error("Invalid input!")
+
+    for (i,z) in enumerate(zoneids)
         if basedon == :link
-            flows = zeros(nlinks)
-            flows, ((src, snk, lidx, v) -> (flows[lidx] += v;))
-        elseif (basedon == :origin) || (basedon == :source)
-            flows = zeros(nlinks, nzones)
-            flows, ((src, snk, lidx, v) -> (flows[lidx,src] += v;))
+            flows += allornothing(network, z, trips[z,:], costs)
+        else
+            flows[:,i] += allornothing(network, z, trips[z,:], costs)
         end
     end
 
-    # Computing shortest paths
-    _, parentmx = dijkstra(network, zoneids, costs)
-
-    # Determining flows
-    tripswaiting = copy(trips)
-    for src in zoneids
-        for snk in zoneids
-            t = tripswaiting[src,snk]
-            if isapprox(t, 0.) | (src == snk)
-                continue
-            end
-            tripswaiting[src,snk] = 0.
-
-            # Finding the shortest path
-            path = findpath(parentmx, src, snk)
-
-            # Assigning flows
-            for l in path
-                addflows!(src, snk, idx(network, l), t)
-                try
-                    t += tripswaiting[l[2],snk]
-                    tripswaiting[l[2],snk] = 0.
-                catch BoundsError
-                end
-            end
-        end
-    end
     return flows
 end
 

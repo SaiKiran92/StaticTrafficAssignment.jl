@@ -1,5 +1,5 @@
 
-function findpath(parentmx::AbstractMatrix{U}, orig::U, dest::U) where {U<:Integer}
+function path(parentmx::AbstractMatrix{U}, orig::U, dest::U) where {U<:Integer}
     path = Vector{Tuple{U,U}}()
     currnode = dest
     while currnode != orig
@@ -10,7 +10,7 @@ function findpath(parentmx::AbstractMatrix{U}, orig::U, dest::U) where {U<:Integ
     reverse(path)
 end
 
-function findpathto(parents::AbstractVector, dest::U) where {U<:Integer}
+function pathto(parents::AbstractVector, dest::U) where {U<:Integer}
     path = Vector{Tuple{U,U}}()
     currnode = dest
     while true #currnode != orig

@@ -108,7 +108,9 @@ end
 
 eltype(x::SimpleNetwork{T}) where T = T
 
-idx(net::SimpleNetwork{T}, i::U, j::U) where {T<:Integer, U<:Integer} = net.fpoints[i]-1+searchsortedfirst(net.fadjlist[i],j)
+has_link(net::SimpleNetwork{T}, i::U, j::U) where {T<:Integer, U<:Integer} = (j in net.fadjlist[i])
+
+idx(net::SimpleNetwork{T}, i::U, j::U) where {T<:Integer, U<:Integer} = has_link(net, i, j) ? net.fpoints[i]-1+searchsortedfirst(net.fadjlist[i],j) : -1
 idx(net::SimpleNetwork{T}, l::AbstractLink{U}) where {T<:Integer, U<:Integer} = idx(net, upn(l), dwn(l))
 idx(net::SimpleNetwork{T}, t::Tuple{U,U}) where {T<:Integer, U<:Integer} = idx(net, t...)
 
