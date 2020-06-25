@@ -19,79 +19,71 @@ function algorithmB(network::AbstractNetwork{T},
     # iteration
     linkcosts, linkcostdrvs = costfn(flows; returnitems=[:costs, :derivs]) # updated as and when flows change
     LARGE_NUM = typemax(eltype(linkcosts))/2 # large constant used below
-    nlinkswitches = 1 # number of links swithing in and out of bushes
-    while nlinkswitches > 0
-        # equilibrate bushes
-        err = 1. # problem solved for the bushes completely
-        while err > errtol
-            # equilibrate core step
-            totalshift = zeros(Bool, nlinks, nzones)
-            for bush in bushes
-                r = src(bush)
-                scosts, sparentvec = acyclic(bush, linkcosts; kind=:short)
-                lcosts, lparentvec = acyclic(bush, linkcosts + LARGE_NUM * totalshift[:,r]; kind=:long)
+    # equilibrate bushes
+    nlinkswitches = 1
+    err = 1. # problem solved for the bushes completely
+    while err > errtol
+        # equilibrate core step
+        totalshift = zeros(Bool, nlinks, nzones)
+        for bush in bushes
+            r = src(bush)
+            scosts, sparentvec = acyclic(bush, linkcosts; kind=:short)
+            lcosts, lparentvec = acyclic(bush, linkcosts + LARGE_NUM * totalshift[:,r]; kind=:long)
 
-                for j in reverse(orderednodes(bush))
-                    if (j == r) || (lcosts[j] ≈ scosts[j]) || (trips[r,j] == 0.)
-                        continue
-                    end
+            for j in reverse(orderednodes(bush))
+                if (j == r) || (lcosts[j] ≈ scosts[j]) || (trips[r,j] == 0.)
+                    continue
+                end
 
-                    spath = pathto(sparentvec, j)
-                    lpath = pathto(lparentvec, j)
-                    max_i = min(length(spath), length(lpath))
+                spath = pathto(sparentvec, j)
+                lpath = pathto(lparentvec, j)
+                max_i = min(length(spath), length(lpath))
 
-                    # find path segments
-                    i = 1
-                    while (i <= max_i) && (spath[i] == lpath[i])
-                        i += 1
-                    end
-                    sa = la = i
+                # find path segments
+                i = 1
+                while (i <= max_i) && (spath[i] == lpath[i])
+                    i += 1
+                end
+                sa = la = i
 
-                    i = 0
-                    while (i < max_i) && (spath[end-i] == lpath[end-i])
-                        i += 1
-                    end
-                    sb = length(spath)-i
-                    lb = length(lpath)-i
+                i = 0
+                while (i < max_i) && (spath[end-i] == lpath[end-i])
+                    i += 1
+                end
+                sb = length(spath)-i
+                lb = length(lpath)-i
 
-                    # link indices
-                    ssegids = idx.(Ref(bush), spath[sa:sb])
-                    lsegids = idx.(Ref(bush), lpath[la:lb])
+                # link indices
+                ssegids = idx.(Ref(bush), spath[sa:sb])
+                lsegids = idx.(Ref(bush), lpath[la:lb])
 
-                    scost, sdcost = sum(linkcosts[ssegids]), sum(linkcostdrvs[ssegids])
-                    lcost, ldcost = sum(linkcosts[lsegids]), sum(linkcostdrvs[lsegids])
+                scost, sdcost = sum(linkcosts[ssegids]), sum(linkcostdrvs[ssegids])
+                lcost, ldcost = sum(linkcosts[lsegids]), sum(linkcostdrvs[lsegids])
 
-                    lflow = minimum(flows[lsegids,r])
-                    dx = min(lflow, λ * (lcost - scost)/(ldcost + sdcost))
+                lflow = minimum(flows[lsegids,r])
+                dx = min(lflow, λ * (lcost - scost)/(ldcost + sdcost))
 
-                    flows[ssegids,r] .+= dx
-                    flows[lsegids,r] .-= dx
+                flows[ssegids,r] .+= dx
+                flows[lsegids,r] .-= dx
 
-                    # check any zero flows on longpath
-                    for lsi in lsegids
-                        if flows[lsi,r] == 0.
-                            totalshift[lsi,r] = true
-                        end
+                # check any zero flows on longpath
+                for lsi in lsegids
+                    if flows[lsi,r] == 0.
+                        totalshift[lsi,r] = true
                     end
                 end
             end
-
-            linkcosts, linkcostdrvs = costfn(flows; returnitems=[:costs, :derivs])
-            numer = 0.
-            denom = 0.
-            for (i,bush) in enumerate(bushes)
-                r = src(bush)
-                sflows = allornothing(bush, r, trips[:,r], linkcosts)
-                numer += sum(flows[:,i] .* linkcosts)
-                denom += sum(sflows .* linkcosts)
-            end
-            err = numer/denom - 1.
-            println(nlinkswitches, "\t", err)
         end
+
+        linkcosts, linkcostdrvs = costfn(flows; returnitems=[:costs, :derivs])
+        sflows = allornothing(network, trips, linkcosts; basedon=:link)
+        err = sum(flows .* linkcosts)/sum(sflows .* linkcosts) - 1.
+        println(nlinkswitches, "\t", err)
 
         # update bushes
         nlinkswitches = updatebushes!(bushes, flows, linkcosts)
     end
+    flows
 end
 
 function updatebushes!(bushes::Vector{<:AbstractBush}, flows::Matrix, linkcosts::Vector)
