@@ -29,6 +29,7 @@ Installation is straightforward: enter Pkg mode by hitting `]`, and then
 ## To Do
 - Implement a couple more bush-based algorithms.
 - Provide support for user-heterogeneity (or multi-class models) and some advanced applications of traffic assignment problems.
+- Add a visualization module.
 
 ## Documentation and Testing
 Will be made available soon.
